@@ -9,6 +9,11 @@ using Microsoft.SemanticKernel.AI.ChatCompletion;
 using System.Text;
 using System.Net;
 using System.Text.RegularExpressions;
+using Microsoft.SemanticKernel.Memory;
+using Microsoft.SemanticKernel.Plugins.Memory;
+using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
+using Microsoft.SemanticKernel.Text;
+using Microsoft.Extensions.Logging;
 
 string proxyUrl = "https://aoai.hacktogether.net";
 string aoaiEndpoint = new(proxyUrl + "/v1/api"); ;
@@ -19,8 +24,9 @@ string aoaiModel = "gpt-3.5-turbo";
 //Initialize the kernel
 var kBuilder = new KernelBuilder();
 
-kBuilder.WithAzureOpenAIChatCompletionService(aoaiModel, aoaiEndpoint, aoaiApiKey);
-
+kBuilder.WithLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole())) // this is to show whats going on the console
+    .WithAzureOpenAIChatCompletionService(aoaiModel, aoaiEndpoint, aoaiApiKey);
+    
 var kernel = kBuilder.Build();
 
 //Register function with the kernel
@@ -32,6 +38,29 @@ ISKFunction qa = kernel.CreateSemanticFunction("""
     {{$input}}
     """);
 
+
+
+//Download a document and create the embeddings for it 
+
+ISemanticTextMemory memory = new MemoryBuilder()
+    .WithLoggerFactory(kernel.LoggerFactory)
+    .WithMemoryStore(new VolatileMemoryStore())
+    .WithAzureOpenAITextEmbeddingGenerationService("TextEmbeddingAda002_1",aoaiEndpoint,aoaiApiKey)
+    .Build();
+string collectionName = "net7perf"; 
+using (HttpClient client = new())
+{
+    string s = await client.GetStringAsync("https://devblogs.microsoft.com/dotnet/performance_improvements_in_net_7");
+    List<string> paragraphs =
+        TextChunker.SplitPlainTextParagraphs(
+            TextChunker.SplitPlainTextLines(
+                WebUtility.HtmlDecode(Regex.Replace(s, @"<[^>]+>|&nbsp;", "")),
+                128),
+            1024);
+    for (int i = 0; i < paragraphs.Count;  i++)
+        await memory.SaveInformationAsync(collectionName, paragraphs[i], $"paragraph{i}");
+}
+
 // Create a new chat with history
 IChatCompletion ai = kernel.GetService<IChatCompletion>();
 ChatHistory chat = ai.CreateNewChat(
@@ -39,23 +68,34 @@ ChatHistory chat = ai.CreateNewChat(
 StringBuilder builder = new();
 
 
-
-
 // Q&A loop
 while (true)
 {
     Console.Write("Question: ");
-    //Console.WriteLine((await qa.InvokeAsync(Console.ReadLine()!, kernel, functions: kernel.Functions)).GetValue<string>());
-    chat.AddUserMessage(Console.ReadLine()!);
+    string question = Console.ReadLine()!;
+    
+    builder.Clear();
+    await foreach (var result in memory.SearchAsync(collectionName, question, limit: 3))
+          builder.AppendLine(result.Metadata.Text);
+    int contextToRemove = -1;
+    if (builder.Length !=0)
+    {
+        builder.Insert(0, "Here's some additional information: ");
+        contextToRemove = chat.Count;
+        chat.AddUserMessage(builder.ToString());
+    }
+    
+    chat.AddUserMessage(question);
 
     builder.Clear();
-    await foreach (string message in ai.GenerateMessageStreamAsync(chat))
+    await foreach (string message  in ai.GenerateMessageStreamAsync(chat))
     {
-        Console.Write(message);
+        Console.WriteLine(message);
         builder.Append(message);
     }
     Console.WriteLine();
     chat.AddAssistantMessage(builder.ToString());
 
+    if (contextToRemove >= 0) chat.RemoveAt(contextToRemove);
     Console.WriteLine();
 }
