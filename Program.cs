@@ -14,6 +14,7 @@ using Microsoft.SemanticKernel.Plugins.Memory;
 using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
 using Microsoft.SemanticKernel.Text;
 using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel.Connectors.Memory.Sqlite;
 
 string proxyUrl = "https://aoai.hacktogether.net";
 string aoaiEndpoint = new(proxyUrl + "/v1/api"); ;
@@ -38,27 +39,34 @@ ISKFunction qa = kernel.CreateSemanticFunction("""
     {{$input}}
     """);
 
+    //Download a document and create the embeddings for it 
 
-
-//Download a document and create the embeddings for it 
-
-ISemanticTextMemory memory = new MemoryBuilder()
-    .WithLoggerFactory(kernel.LoggerFactory)
-    .WithMemoryStore(new VolatileMemoryStore())
-    .WithAzureOpenAITextEmbeddingGenerationService("TextEmbeddingAda002_1",aoaiEndpoint,aoaiApiKey)
-    .Build();
-string collectionName = "net7perf"; 
-using (HttpClient client = new())
+    ISemanticTextMemory memory = new MemoryBuilder()
+        .WithLoggerFactory(kernel.LoggerFactory)
+        .WithMemoryStore(await SqliteMemoryStore.ConnectAsync("mydata.db")) //this will store the data in a regular file
+        .WithAzureOpenAITextEmbeddingGenerationService("TextEmbeddingAda002_1", aoaiEndpoint, aoaiApiKey)
+        .Build();
+IList<string> collections = await memory.GetCollectionsAsync();
+string collectionName = "net7perf";
+if (!collections.Contains("net7perf"))
 {
-    string s = await client.GetStringAsync("https://devblogs.microsoft.com/dotnet/performance_improvements_in_net_7");
-    List<string> paragraphs =
-        TextChunker.SplitPlainTextParagraphs(
-            TextChunker.SplitPlainTextLines(
-                WebUtility.HtmlDecode(Regex.Replace(s, @"<[^>]+>|&nbsp;", "")),
-                128),
-            1024);
-    for (int i = 0; i < paragraphs.Count;  i++)
-        await memory.SaveInformationAsync(collectionName, paragraphs[i], $"paragraph{i}");
+    Console.WriteLine("Found Database");
+}
+else
+{
+    using (HttpClient client = new())
+    {
+        string s = await client.GetStringAsync("https://devblogs.microsoft.com/dotnet/performance_improvements_in_net_7");
+        List<string> paragraphs =
+            TextChunker.SplitPlainTextParagraphs(
+                TextChunker.SplitPlainTextLines(
+                    WebUtility.HtmlDecode(Regex.Replace(s, @"<[^>]+>|&nbsp;", "")),
+                    128),
+                1024);
+        for (int i = 0; i < paragraphs.Count; i++)
+            await memory.SaveInformationAsync(collectionName, paragraphs[i], $"paragraph{i}");
+        Console.WriteLine("Generated Database");
+    }
 }
 
 // Create a new chat with history
