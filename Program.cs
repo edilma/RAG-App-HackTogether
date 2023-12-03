@@ -1,20 +1,21 @@
 ﻿using Azure.AI.OpenAI;
 using Azure;
-using Microsoft.SemanticKernel;
 using static System.Net.WebRequestMethods;
 using System.Security.Cryptography.X509Certificates;
 using Humanizer;
 using System.Numerics;
+using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
-using System.Text;
-using System.Net;
-using System.Text.RegularExpressions;
+using Microsoft.SemanticKernel.Connectors.Memory.Qdrant;
+using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Memory;
-using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
 using Microsoft.SemanticKernel.Text;
-using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel.Connectors.Memory.Sqlite;
+using System.Net;
+using System.Text;
+using System.Text.RegularExpressions;
+//using Microsoft.SemanticKernel.Connectors.Memory.Sqlite;
 
 string proxyUrl = "https://aoai.hacktogether.net";
 string aoaiEndpoint = new(proxyUrl + "/v1/api"); ;
@@ -41,14 +42,15 @@ ISKFunction qa = kernel.CreateSemanticFunction("""
 
     //Download a document and create the embeddings for it 
 
-    ISemanticTextMemory memory = new MemoryBuilder()
+ISemanticTextMemory memory = new MemoryBuilder()
+        .WithMemoryStore(new QdrantMemoryStore("http://localhost:6333/", 1536))
         .WithLoggerFactory(kernel.LoggerFactory)
-        .WithMemoryStore(await SqliteMemoryStore.ConnectAsync("mydata.db")) //this will store the data in a regular file
         .WithAzureOpenAITextEmbeddingGenerationService("TextEmbeddingAda002_1", aoaiEndpoint, aoaiApiKey)
         .Build();
+
 IList<string> collections = await memory.GetCollectionsAsync();
 string collectionName = "net7perf";
-if (!collections.Contains("net7perf"))
+if (collections.Contains("net7perf"))
 {
     Console.WriteLine("Found Database");
 }
@@ -98,7 +100,7 @@ while (true)
     builder.Clear();
     await foreach (string message  in ai.GenerateMessageStreamAsync(chat))
     {
-        Console.WriteLine(message);
+        Console.Write(message);
         builder.Append(message);
     }
     Console.WriteLine();
