@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.0.0-beta8" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.Memory.Qdrant" Version="1.0.0-beta8" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.Memory.Sqlite" Version="1.0.0-beta8" />
+    <PackageReference Include="Microsoft.SemanticKernel.Planners.Core" Version="1.0.0-beta8" />
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.0.0-beta8" />
     <PackageReference Include="Qdrant.Client" Version="1.6.0-alpha.1" />
   </ItemGroup>
