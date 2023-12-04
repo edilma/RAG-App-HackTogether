@@ -9,6 +9,8 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.AI.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.Memory.Qdrant;
 using Microsoft.SemanticKernel.Connectors.AI.OpenAI;
+using UglyToad.PdfPig.DocumentLayoutAnalysis.TextExtractor;
+
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Plugins.Memory;
 using Microsoft.SemanticKernel.Planners;
@@ -38,6 +40,7 @@ kernel.RegisterCustomFunction(SKFunction.Create(
     () => $"The current date and time are {DateTime.UtcNow:r}",
     "DateTime", "Now", "Gets the current date and time."));
 
+
 //Ensure we have embeddings for our document
 ISemanticTextMemory memory = new MemoryBuilder()
         .WithMemoryStore(new QdrantMemoryStore("http://localhost:6333/", 1536))
@@ -46,33 +49,90 @@ ISemanticTextMemory memory = new MemoryBuilder()
         .Build();
 
 IList<string> collections = await memory.GetCollectionsAsync();
-string collectionName = "net7perf";
-if (collections.Contains("net7perf"))
+
+string collectionName = "canColVeHai";
+
+
+if (collections.Contains("canColVeHai"))
 {
     Console.WriteLine("Found Database");
 }
 else
 {
-    using (HttpClient client = new())
+    //Parse PDF files and initialize SK memory
+    var dataFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "..", "data");
+    var pdfFiles = Directory.GetFiles(dataFolderPath, "*.pdf");
+
+    Console.WriteLine($"The path of the directory is {pdfFiles.ToString()}");
+
+    foreach (var pdfFileName in pdfFiles)
     {
-        string s = await client.GetStringAsync("https://devblogs.microsoft.com/dotnet/performance_improvements_in_net_7");
-        List<string> paragraphs =
-            TextChunker.SplitPlainTextParagraphs(
-                TextChunker.SplitPlainTextLines(
-                    WebUtility.HtmlDecode(Regex.Replace(s, @"<[^>]+>|&nbsp;", "")),
-                    128),
-                1024);
-        for (int i = 0; i < paragraphs.Count; i++)
-            await memory.SaveInformationAsync(collectionName, paragraphs[i], $"paragraph{i}");
-        Console.WriteLine("Generated Database");
+        using var pdfDocument = UglyToad.PdfPig.PdfDocument.Open(pdfFileName);
+        foreach (var pdfPage in pdfDocument.GetPages())
+        {
+            var pageText = ContentOrderTextExtractor.GetText(pdfPage);
+            var paragraphs = new List<string>();
+
+            //We need to break long content to smaller pieces
+            if (pageText.Length > 2048)
+            {
+                var lines = TextChunker.SplitPlainTextLines(pageText, 128);
+                paragraphs = TextChunker.SplitPlainTextParagraphs(lines, 1024);
+            }
+            else
+            {
+                paragraphs.Add(pageText);
+            }
+
+            foreach (var paragraph in paragraphs)
+            {
+                var id = pdfFileName + pdfPage.Number + paragraphs.IndexOf(paragraph);
+                await memory.SaveInformationAsync(collectionName, paragraph, id);
+            }
+            Console.WriteLine("Generated Database");
+
+        }
     }
 }
+
+//End of Parse PDF files and initialize SK memory
+
 
 // Create a new chat 
 IChatCompletion ai = kernel.GetService<IChatCompletion>();
 ChatHistory chat = ai.CreateNewChat(
-    "You are an AI assistant that helps people find information.");
+    "You are an AI assistant that helps people find information.  Use only the data provided in the sources ");
 StringBuilder builder = new();
+
+
+//This is the minimal API
+
+var WebBuilder = WebApplication.CreateBuilder(args);
+var app = WebBuilder.Build();
+
+app.MapGet("/", () => {
+    try
+    {
+        Console.WriteLine("looking for banks!");
+        SavingsAcount myAccount = new SavingsAcount("Todd Alberto", 300);
+        return Results.Ok($"Your balance is ${myAccount.getBalance()}");
+
+    }
+    catch (Exception ex)
+    {
+
+        Console.WriteLine($"We got an error: {ex.Message}");
+        return Results.Ok(ex.Message);
+
+    }
+});
+
+app.Run();
+
+
+
+
+//End of minimal API
 
 
 // Q&A loop
@@ -89,7 +149,11 @@ while (true)
     // Get additional context from any function the LLM thinks we should invoke
 
     Plan plan = await new ActionPlanner(kernel).CreatePlanAsync(question);
-    string? plannerResult = (await kernel.RunAsync(plan)).GetValue<string>();
+    string? plannerResult = (await kernel.RunAsync(plan)).GetValue<string>()!;
+    
+    
+    //Console.WriteLine(plannerResult);
+    
     if (!string.IsNullOrEmpty(plannerResult))
     {
         builder.AppendLine(plannerResult);

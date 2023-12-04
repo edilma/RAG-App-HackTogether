@@ -15,6 +15,7 @@
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.Memory.Sqlite" Version="1.0.0-beta8" />
     <PackageReference Include="Microsoft.SemanticKernel.Planners.Core" Version="1.0.0-beta8" />
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.0.0-beta8" />
+    <PackageReference Include="PdfPig" Version="0.1.9-alpha-20231119-4537e" />
     <PackageReference Include="Qdrant.Client" Version="1.6.0-alpha.1" />
   </ItemGroup>
 
