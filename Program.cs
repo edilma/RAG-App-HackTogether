@@ -20,10 +20,13 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 
-string proxyUrl = "https://aoai.hacktogether.net";
-string aoaiEndpoint = new(proxyUrl + "/v1/api"); ;
+//string proxyUrl = "https://aoai.hacktogether.net";
+//string aoaiEndpoint = new(proxyUrl + "/v1/api"); ;
+
+string aoaiEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")!;
 string aoaiApiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY")!;
-string aoaiModel = "gpt-3.5-turbo";
+//string aoaiModel = "gpt-3.5-turbo";
+string aoaiModel = "Gpt35Turbo_0301"; // LLM for the chat
 
 //Initialize the kernel
 var kBuilder = new KernelBuilder();
