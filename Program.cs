@@ -95,7 +95,7 @@ else
     }
 }
 
-//End of Parse PDF files and initialize SK memory
+//End of Parse PDF files 
 
 
 // Create a new chat 
@@ -103,36 +103,6 @@ IChatCompletion ai = kernel.GetService<IChatCompletion>();
 ChatHistory chat = ai.CreateNewChat(
     "You are an AI assistant that helps people find information.  Use only the data provided in the sources ");
 StringBuilder builder = new();
-
-
-//This is the minimal API
-
-var WebBuilder = WebApplication.CreateBuilder(args);
-var app = WebBuilder.Build();
-
-app.MapGet("/", () => {
-    try
-    {
-        Console.WriteLine("looking for banks!");
-        SavingsAcount myAccount = new SavingsAcount("Todd Alberto", 300);
-        return Results.Ok($"Your balance is ${myAccount.getBalance()}");
-
-    }
-    catch (Exception ex)
-    {
-
-        Console.WriteLine($"We got an error: {ex.Message}");
-        return Results.Ok(ex.Message);
-
-    }
-});
-
-app.Run();
-
-
-
-
-//End of minimal API
 
 
 // Q&A loop
