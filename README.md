@@ -1,5 +1,5 @@
 ## Technical Overview 
-Chat with own Data - ChatGPT-like Application using RAG pattern that allows to ask question to my own documents - I Used Semantic Kernel to integrate a LLM (OpenAI) using C# to orchestrate AI pluggins (Azure Cognitive Services).  For the document embeddings I used Qdrant for the vector database and Pdfpig to extract the text content fromt the pdf files. I used Docker to host the database.
+Chat with own Data - ChatGPT-like Application using RAG pattern that allows to ask question to my own documents.  The user can ask the question in any language  - I Used Semantic Kernel to integrate a LLM (OpenAI) using C# to orchestrate AI pluggins (Azure Cognitive Services).  For the document embeddings I used Qdrant as  the vector database and Pdfpig to extract the text content fromt the pdf files. I used Docker to host the database.
 
 ## Tech Stack 
 ### .Net 8.0
