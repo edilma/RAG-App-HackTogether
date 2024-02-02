@@ -31,9 +31,13 @@ string aoaiModel = "Gpt35Turbo_0301"; // LLM for the chat
 //Initialize the kernel
 var kBuilder = new KernelBuilder();
 
-kBuilder.WithLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole())) // this is to show whats going on the console
-    .WithAzureOpenAIChatCompletionService(aoaiModel, aoaiEndpoint, aoaiApiKey);
-    
+//kBuilder.WithLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole())) // this is to show whats going on the console
+//    .WithAzureOpenAIChatCompletionService(aoaiModel, aoaiEndpoint, aoaiApiKey);
+
+
+
+kBuilder.WithAzureOpenAIChatCompletionService(aoaiModel, aoaiEndpoint, aoaiApiKey);
+
 var kernel = kBuilder.Build();
 
 
