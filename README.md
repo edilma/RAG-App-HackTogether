@@ -12,21 +12,32 @@ Chat with own Data - ChatGPT-like Application using RAG pattern that allows to a
 
 ## Why I created the App
 
-Created to participate in the Microwoft Hackathon for .NET.  The objective was to use .Net 8.0 capabilities and Artificial Intelligent tools within the .NET universe only...
+Created to participate in the Microsoft Hackathon for .NET.  The objective was to use .Net 8.0 capabilities and Artificial Intelligent tools within the .NET universe only...
 
-I developed this application with a specific focus in mind - to assist individuals who are seeking vital information and guidance, particularly in situations where access to accurate and reliable data can be life-changing.
+Bridging the gap to legal immigration: I built this app driven by the belief that everyone deserves a safe and legal path to opportunity. 
 
-The recent launch of the Canadian government's program, aimed at selecting 11,000 people, underscores the critical need for accessible, trustworthy information. Many individuals may find themselves overwhelmed by the complexity of the application process, worried about potential errors, or concerned about the risk of exploitation.
+The app is an AI-powered chatbot. It leverages Retrieval-Augmented Generation (RAG) technology. Similar to ChatGPT, my app only answer  questions (in any language) based on official documentation (that I provided), offering reliable and personalized guidance. 
 
-My app was designed with the intention of providing a helping hand to those who need it the most. It seeks to empower users by offering them a reliable source of information and assistance, ensuring that they can navigate such programs with confidence and without fear of making mistakes.
+Beyond showcasing my coding skills in AI integration, data management, and chatbot design, this project demonstrates my passion for creating impactful solutions. 
 
-In a world where information is abundant but accuracy isn't always guaranteed, this application serves as a beacon of trustworthiness. It strives to create a supportive environment where individuals can seek guidance and find the answers they need without fear of being misled or abused.
-
-Ultimately, the goal of this app is to make a positive impact on the lives of those who use it, especially during crucial moments like applying for government programs. It is my hope that by offering this tool, I can contribute to a safer, more informed, and empowered community of users.  I couldn't finish the front end but i am working on it...
+Ready to leverage AI for positive change? Let's discuss how my skills can contribute to your team's success.
 
 ## Overview
 
 This application is a command-line tool that leverages the Microsoft Semantic Kernel to create a conversational AI assistant. The assistant is designed to help users find information about a new humanitarian program that the government of Canada created for 3 countries.  I have included PDF documents with information about the program. It utilizes the OpenAI GPT-3.5 Turbo model for chat completion and integrates with a Qdrant-based memory store for document embeddings and retrieval.
+
+## Features
+
+* Accurate and Reliable Information
+* Hallucination-Free Answers
+* Multilingual Interface
+* Low API token consumption
+* Scalability
+* Portability across platforms
+* Quick Deployment
+* Environment-Independent
+* Targeted and Impactful Assistance
+
 
 ## App in Action
 
