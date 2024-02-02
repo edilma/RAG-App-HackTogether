@@ -1,13 +1,16 @@
+![Cartoon Robot talking with immigrant](https://github.com/edilma/RAG-App-HackTogether/blob/master/images/Rag_chatbot_ai.jpg?raw=true?raw=true)
+
 ## Technical Overview 
 Chat with own Data - ChatGPT-like Application using RAG pattern that allows to ask question to my own documents.  The user can ask the question in any language  - I Used Semantic Kernel to integrate a LLM (OpenAI) using C# to orchestrate AI pluggins (Azure Cognitive Services).  For the document embeddings I used Qdrant as  the vector database and Pdfpig to extract the text content fromt the pdf files. I used Docker to host the database.
 
-## Tech Stack 
-### .Net 8.0
-### Semantic Kernel
-### Azure Cognitive Service
-### Qdrant Vector Database
-### Docker 
-### PdfPig
+## Tech Stack
+* .Net 8.0
+* Semantic Kernel
+* Azure Cognitive Services
+* Qdrant Vector Database
+* Docker
+* PdfPig
+
 
 
 ## Why I created the App
@@ -45,9 +48,11 @@ This application is a command-line tool that leverages the Microsoft Semantic Ke
 
 Click the image above to watch a video demonstration of the app in action.
 
-[![Click to watch the video](https://img.youtube.com/vi/tbobjZFNelA/0.jpg)](https://www.youtube.com/watch?v=tbobjZFNelA)
+![The chat is multilingual - Here it is logging everything](https://github.com/edilma/RAG-App-HackTogether/blob/master/images/RAG_app_languages.png?raw=true)
 
-Click the image above to watch a video demonstration of the app being used in English, Spanish and Creole.
+
+![The chat answering in any language - No logging](https://github.com/edilma/RAG-App-HackTogether/blob/master/images/rag_in%20_3%20languages.png?raw=true?raw=true)
+
 
 ## Prerequisites
 
@@ -101,3 +106,6 @@ To run the application, execute the code provided in the readme in a compatible 
 - The Qdrant memory store is used for document embeddings. Ensure that the store is properly set up and running at the specified endpoint.
 
 Feel free to modify and extend this application according to your specific use case and requirements.
+
+
+![linkedin post](https://github.com/edilma/RAG-App-HackTogether/blob/master/images/LinkedIn_RagChatDescription.gif?raw=true?raw=true)
