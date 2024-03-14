@@ -115,7 +115,10 @@ StringBuilder builder = new();
 // Q&A loop
 while (true)
 {
+
+
     Console.Write("Question: ");
+    //Input question
     string question = Console.ReadLine()!;
 
     //Get additional context from embeddings
@@ -125,7 +128,7 @@ while (true)
 
     // Get additional context from any function the LLM thinks we should invoke
 
-    Plan plan = await new ActionPlanner(kernel).CreatePlanAsync(question);
+    var plan = await new ActionPlanner(kernel).CreatePlanAsync(question);
     string? plannerResult = (await kernel.RunAsync(plan)).GetValue<string>()!;
     
     
@@ -149,10 +152,11 @@ while (true)
     builder.Clear();
     await foreach (string message  in ai.GenerateMessageStreamAsync(chat))
     {
-        Console.Write(message);
+        //Console.Write(message);
         builder.Append(message);
     }
-    Console.WriteLine();
+    // output the response
+    Console.WriteLine(builder.ToString());
     chat.AddAssistantMessage(builder.ToString());
 
     if (contextToRemove >= 0) chat.RemoveAt(contextToRemove);
