@@ -117,7 +117,7 @@ while (true)
 {
 
 
-    Console.Write("Question: ");
+    Console.Write("AiCore: ");
     //Input question
     string question = Console.ReadLine()!;
 
@@ -155,6 +155,10 @@ while (true)
         //Console.Write(message);
         builder.Append(message);
     }
+
+    AiCore aiCore = new AiCore();
+    string answer = aiCore.AskQuestion(question);
+
     // output the response
     Console.WriteLine(builder.ToString());
     chat.AddAssistantMessage(builder.ToString());
